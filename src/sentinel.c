@@ -162,7 +162,7 @@ typedef struct instanceLink {
 } instanceLink;
 
 typedef struct sentinelRedisInstance {
-    int flags;      /* See SRI_... defines */
+    int flags;      /*  SRI_MASTER  SRI_SLAVER See SRI_... defines */
     char *name;     /* Master name from the point of view of this sentinel. */
     char *runid;    /* Run ID of this instance, or unique ID if is a Sentinel.*/
     uint64_t config_epoch;  /* Configuration epoch. */
@@ -232,15 +232,17 @@ typedef struct sentinelRedisInstance {
 /* Main state. */
 struct sentinelState {
     char myid[CONFIG_RUN_ID_SIZE+1]; /* This sentinel ID. */
-    uint64_t current_epoch;         /* Current epoch. */
-    dict *masters;      /* Dictionary of master sentinelRedisInstances.
+    uint64_t current_epoch;         /* Current epoch.  当前主服务器周期*/
+    dict *masters;      /* 监视的主服务器 key：服务器名 value：sentinelRedisInstance
+                           Dictionary of master sentinelRedisInstances.
                            Key is the instance name, value is the
                            sentinelRedisInstance structure pointer. */
     int tilt;           /* Are we in TILT mode? */
     int running_scripts;    /* Number of scripts in execution right now. */
     mstime_t tilt_start_time;       /* When TITL started. */
     mstime_t previous_time;         /* Last time we ran the time handler. */
-    list *scripts_queue;            /* Queue of user scripts to execute. */
+    list *scripts_queue;            /* 用户脚本FIFO队列
+                                       Queue of user scripts to execute. */
     char *announce_ip;  /* IP addr that is gossiped to other sentinels if
                            not NULL. */
     int announce_port;  /* Port that is gossiped to other sentinels if
